@@ -69,6 +69,30 @@ resource "google_secret_manager_secret" "admin_secret" {
     auto {}
   }
 }
+
+resource "google_secret_manager_secret" "slack_token" {
+  secret_id = "SLACK_BOT_TOKEN"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.services]
+}
+
+resource "google_secret_manager_secret" "slack_signing_secret" {
+  secret_id = "SLACK_SIGNING_SECRET"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.services]
+}
+
+resource "google_secret_manager_secret" "slack_channel_id" {
+  secret_id = "SLACK_CHANNEL_ID"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.services]
+}
 # --- Cloud Run Service ---
 resource "google_cloud_run_v2_service" "portfolio_app" {
   name     = var.app_name
@@ -119,6 +143,34 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
           }
         }
       }
+      env {
+        name = "SLACK_BOT_TOKEN"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.slack_token.secret_id
+            version = "latest"
+          }
+        }
+      }
+      env {
+        name  = "SLACK_CHANNEL_ID"
+        value_source {
+          secret_key_ref {
+            secret = google_secret_manager_secret.slack_channel_id.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "SLACK_SIGNING_SECRET"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.slack_signing_secret.secret_id
+            version = "latest"
+          }
+        }
+      }
 
       resources {
         limits = {
@@ -127,6 +179,14 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
         }
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image,
+      client,
+      client_version
+    ]
   }
 }
 
@@ -159,4 +219,13 @@ resource "google_service_account_iam_member" "github_act_as_app_sa" {
 
 resource "google_service_account_key" "github_actions_key" {
   service_account_id = google_service_account.github_actions.name
+}
+
+resource "google_firestore_database" "database" {
+  project     = var.project_id
+  name        = "(default)"
+  location_id = var.region
+  type        = "FIRESTORE_NATIVE"
+
+  depends_on = [google_project_service.services]
 }
