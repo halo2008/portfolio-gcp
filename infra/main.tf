@@ -7,7 +7,8 @@ resource "google_project_service" "services" {
     "aiplatform.googleapis.com",
     "secretmanager.googleapis.com",
     "firestore.googleapis.com",
-    "cloudbuild.googleapis.com"
+    "cloudbuild.googleapis.com",
+    "identitytoolkit.googleapis.com"
   ])
   service            = each.value
   disable_on_destroy = false
@@ -28,6 +29,21 @@ resource "google_secret_manager_secret" "qdrant_key" {
   replication {
     auto {}
   }
+}
+
+# --- Identity Platform ---
+resource "google_identity_platform_config" "default" {
+  project = var.project_id
+  
+  sign_in {
+    allow_duplicate_emails = false
+    email {
+      enabled           = true
+      password_required = true
+    }
+  }
+  
+  depends_on = [google_project_service.services]
 }
 
 # --- Infrastructure ---
@@ -93,6 +109,55 @@ resource "google_secret_manager_secret" "slack_channel_id" {
   }
   depends_on = [google_project_service.services]
 }
+
+resource "google_secret_manager_secret" "loki_host" {
+  secret_id = "LOKI_HOST"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.services]
+}
+
+resource "google_secret_manager_secret_version" "loki_host_initial" {
+  secret      = google_secret_manager_secret.loki_host.id
+  secret_data = "TO_BE_REPLACED"
+  lifecycle {
+    ignore_changes = [secret_data]
+  }
+}
+
+resource "google_secret_manager_secret" "loki_username" {
+  secret_id = "LOKI_USERNAME"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.services]
+}
+
+resource "google_secret_manager_secret_version" "loki_username_initial" {
+  secret      = google_secret_manager_secret.loki_username.id
+  secret_data = "TO_BE_REPLACED"
+  lifecycle {
+    ignore_changes = [secret_data]
+  }
+}
+
+resource "google_secret_manager_secret" "loki_password" {
+  secret_id = "LOKI_PASSWORD"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.services]
+}
+
+resource "google_secret_manager_secret_version" "loki_password_initial" {
+  secret      = google_secret_manager_secret.loki_password.id
+  secret_data = "TO_BE_REPLACED"
+  lifecycle {
+    ignore_changes = [secret_data]
+  }
+}
+
 # --- Cloud Run Service ---
 resource "google_cloud_run_v2_service" "portfolio_app" {
   name     = var.app_name
@@ -100,11 +165,32 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
   ingress  = "INGRESS_TRAFFIC_ALL"
   deletion_protection = false
 
+  depends_on = [
+    google_secret_manager_secret_version.loki_host_initial,
+    google_secret_manager_secret_version.loki_username_initial,
+    google_secret_manager_secret_version.loki_password_initial
+  ]
+
   template {
     service_account = google_service_account.app_sa.email
 
+    scaling {
+      min_instance_count = 1
+      max_instance_count = 3
+    }
     containers {
       image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/portfolio-app:latest"
+
+
+      startup_probe {
+        http_get {
+          path = "/api/health"
+          port = 8080
+        }
+        initial_delay_seconds = 15
+        period_seconds        = 5
+        failure_threshold     = 3
+      }
 
       # Core app configuration
       env {
@@ -121,6 +207,15 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.gemini_key.secret_id
+            version = "latest"
+          }
+        }
+      }
+      env {
+        name = "RECAPTCHA_SECRET_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.recaptcha_secret_key.secret_id
             version = "latest"
           }
         }
@@ -172,6 +267,36 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
         }
       }
 
+      env {
+        name = "LOKI_HOST"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.loki_host.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "LOKI_USERNAME"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.loki_username.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "LOKI_PASSWORD"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.loki_password.secret_id
+            version = "latest"
+          }
+        }
+      }
+
       resources {
         limits = {
           cpu    = "1000m"
@@ -205,6 +330,14 @@ resource "google_project_iam_member" "github_ar_writer" {
   member  = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
+resource "google_secret_manager_secret" "recaptcha_secret_key" {
+  secret_id = "RECAPTCHA_SECRET_KEY"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.services]
+}
+
 resource "google_project_iam_member" "github_run_admin" {
   project = var.project_id
   role    = "roles/run.admin"
@@ -228,4 +361,29 @@ resource "google_firestore_database" "database" {
   type        = "FIRESTORE_NATIVE"
 
   depends_on = [google_project_service.services]
+}
+
+resource "google_project_iam_member" "firestore_access" {
+  project = var.project_id
+  role    = "roles/datastore.user"
+  member  = "serviceAccount:${google_service_account.app_sa.email}"
+}
+
+resource "google_cloud_run_domain_mapping" "default" {
+  location = var.region
+  name     = "ks-infra.dev" # Twoja domena
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.portfolio_app.name
+  }
+}
+
+resource "google_secret_manager_secret_iam_member" "app_sa_recaptcha_accessor" {
+  secret_id = google_secret_manager_secret.recaptcha_secret_key.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.app_sa.email}"
 }

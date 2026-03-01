@@ -20,4 +20,8 @@ terraform {
 provider "google" {
   project = var.project_id
   region = var.region
+  
+  # Required for some APIs (like Identity Platform) when using local ADC
+  user_project_override = true
+  billing_project       = var.project_id
 }

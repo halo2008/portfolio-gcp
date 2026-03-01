@@ -15,3 +15,8 @@ output "github_actions_private_key" {
   value       = google_service_account_key.github_actions_key.private_key
   sensitive   = true
 }
+
+output "cloud_run_url" {
+  description = "The URL of the deployed Cloud Run service"
+  value       = google_cloud_run_v2_service.portfolio_app.uri
+}
