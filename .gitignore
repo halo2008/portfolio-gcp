@@ -35,3 +35,8 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore Terraform cache directory
+.terraform.lock.hcl
+gcp_key.json
+.idea/
