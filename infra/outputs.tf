@@ -10,10 +10,9 @@ output "service_account_email" {
   value       = google_service_account.app_sa.email
 }
 
-output "github_actions_private_key" {
-  description = "Sensitive JSON Key for GitHub Actions (Add to Secrets as GCP_SA_KEY)"
-  value       = google_service_account_key.github_actions_key.private_key
-  sensitive   = true
+output "wif_provider_name" {
+  description = "Workload Identity Provider Name for GitHub Actions"
+  value       = google_iam_workload_identity_pool_provider.github_provider.name
 }
 
 output "cloud_run_url" {
