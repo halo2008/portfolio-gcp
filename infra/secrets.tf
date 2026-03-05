@@ -1,8 +1,11 @@
+# --- Secret Manager Configuration ---
+
 variable "secret_ids" {
   type    = list(string)
   default = [
     "GEMINI_API_KEY",
     "QDRANT_API_KEY",
+    "QDRANT_URL", # Added for consistency with infrastructure requirements
     "ADMIN_SECRET",
     "SLACK_BOT_TOKEN",
     "SLACK_SIGNING_SECRET",
@@ -41,5 +44,5 @@ resource "google_secret_manager_secret_iam_member" "accessor" {
   for_each  = toset(var.secret_ids)
   secret_id = google_secret_manager_secret.secrets[each.key].id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+  member    = "serviceAccount:${google_service_account.app_sa.email}"
 }

@@ -8,9 +8,8 @@ resource "google_iam_workload_identity_pool" "github_pool" {
 resource "google_iam_workload_identity_pool_provider" "github_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.github_pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "github-actions-provider"
-  display_name                       = "GitHub Actions Provider"
-  description                        = "OIDC Provider for GitHub Actions"
   project                            = var.project_id
+  display_name                       = "GitHub Actions Provider"
 
   attribute_mapping = {
     "google.subject"             = "assertion.sub"

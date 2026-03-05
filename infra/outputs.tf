@@ -19,3 +19,13 @@ output "cloud_run_url" {
   description = "The URL of the deployed Cloud Run service"
   value       = google_cloud_run_v2_service.portfolio_app.uri
 }
+
+output "workload_identity_provider_name" {
+  description = "The full identifier of the Workload Identity Provider"
+  value       = google_iam_workload_identity_pool_provider.github_provider.name
+}
+
+output "deployer_service_account_email" {
+  description = "The email of the service account used for deployment"
+  value       = google_service_account.github_actions.email
+}
