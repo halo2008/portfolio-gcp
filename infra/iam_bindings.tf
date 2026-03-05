@@ -18,6 +18,7 @@ locals {
   app_secret_ids = {
     "gemini"        = google_secret_manager_secret.gemini_key.id
     "qdrant"        = google_secret_manager_secret.qdrant_key.id
+    "qdrant_url"    = "projects/${var.project_id}/secrets/QDRANT_URL"
     "admin"         = google_secret_manager_secret.admin_secret.id
     "slack_token"   = google_secret_manager_secret.slack_token.id
     "slack_signing" = google_secret_manager_secret.slack_signing_secret.id

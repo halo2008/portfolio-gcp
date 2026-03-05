@@ -27,12 +27,16 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
           path = "/api/health"
           port = 8080
         }
-        initial_delay_seconds = 15
-        period_seconds        = 5
+        initial_delay_seconds = 60
+        period_seconds        = 10
         failure_threshold     = 3
       }
 
       # Core app configuration
+      env {
+        name  = "FIRESTORE_DB"
+        value = "(default)"
+      }
       env {
         name = "QDRANT_URL"
         value_source {
@@ -140,7 +144,7 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "512Mi"
+          memory = "1024Mi"
         }
       }
     }
