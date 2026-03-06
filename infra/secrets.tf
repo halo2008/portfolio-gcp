@@ -20,7 +20,8 @@ variable "secret_ids" {
     "GMAIL_CLIENT_SECRET",
     "GMAIL_REFRESH_TOKEN",
     "USEME_POLL_TOKEN",
-    "USEME_USER_SKILLS"
+    "USEME_USER_SKILLS",
+    "GRAFANA_REMOTE_WRITE_URL"
   ]
 }
 
