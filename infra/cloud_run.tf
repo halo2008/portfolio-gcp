@@ -160,6 +160,57 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
         }
       }
 
+      # Useme module secrets
+      env {
+        name = "GMAIL_CLIENT_ID"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.secrets["GMAIL_CLIENT_ID"].secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "GMAIL_CLIENT_SECRET"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.secrets["GMAIL_CLIENT_SECRET"].secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "GMAIL_REFRESH_TOKEN"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.secrets["GMAIL_REFRESH_TOKEN"].secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "USEME_POLL_TOKEN"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.secrets["USEME_POLL_TOKEN"].secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "USEME_USER_SKILLS"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.secrets["USEME_USER_SKILLS"].secret_id
+            version = "latest"
+          }
+        }
+      }
+
       resources {
         limits = {
           cpu    = "1000m" # [cite: 16]

@@ -6,7 +6,9 @@ resource "google_project_service" "services" {
     "secretmanager.googleapis.com",
     "firestore.googleapis.com",
     "cloudbuild.googleapis.com",
-    "identitytoolkit.googleapis.com"
+    "identitytoolkit.googleapis.com",
+    "gmail.googleapis.com",
+    "cloudscheduler.googleapis.com"
   ])
   service            = each.value
   disable_on_destroy = false
