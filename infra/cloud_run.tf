@@ -35,7 +35,7 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
         name  = "FIRESTORE_DB"
         value = "(default)"
       }
-      
+
       env {
         name = "GEMINI_API_KEY"
         value_source {
@@ -51,6 +51,16 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.secrets["QDRANT_API_KEY"].secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "QDRANT_URL"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.secrets["QDRANT_URL"].secret_id
             version = "latest"
           }
         }
@@ -219,7 +229,7 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
 
       resources {
         limits = {
-          cpu    = "1000m" 
+          cpu    = "1000m"
           memory = "1024Mi"
         }
       }
