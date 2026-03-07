@@ -1,5 +1,5 @@
 # --- Cloud Run Service ---
-resource "google_cloud_run_v2_service" "portfolio_app" {
+resource "google_cloud_run_v2_service" "ks-portfolio" {
   name                = var.app_name
   location            = var.region
   ingress             = "INGRESS_TRAFFIC_ALL"
@@ -19,14 +19,14 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
     }
 
     containers {
-      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/portfolio-app:latest"
+      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/ks-portfolio:latest"
 
       startup_probe {
         http_get {
-          path = "/api/health"
+          path = "/health"
           port = 8080
         }
-        initial_delay_seconds = 30
+        initial_delay_seconds = 70
         period_seconds        = 10
         failure_threshold     = 3
       }
@@ -237,8 +237,8 @@ resource "google_cloud_run_v2_service" "portfolio_app" {
 
 # --- Public Access ---
 resource "google_cloud_run_service_iam_member" "public_access" {
-  service  = google_cloud_run_v2_service.portfolio_app.name
-  location = google_cloud_run_v2_service.portfolio_app.location
+  service  = google_cloud_run_v2_service.ks-portfolio.name
+  location = google_cloud_run_v2_service.ks-portfolio.location
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
@@ -253,6 +253,6 @@ resource "google_cloud_run_domain_mapping" "default" {
   }
 
   spec {
-    route_name = google_cloud_run_v2_service.portfolio_app.name
+    route_name = google_cloud_run_v2_service.ks-portfolio.name
   }
 }
