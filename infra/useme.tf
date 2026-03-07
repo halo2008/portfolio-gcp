@@ -12,7 +12,7 @@ resource "google_cloud_scheduler_job" "useme_poll" {
 
   http_target {
     http_method = "POST"
-    uri         = "${google_cloud_run_v2_service.portfolio_app.uri}/api/useme/poll"
+    uri         = "${google_cloud_run_v2_service.ks-portfolio.uri}/api/useme/poll"
 
     headers = {
       "Content-Type" = "application/json"
@@ -22,12 +22,12 @@ resource "google_cloud_scheduler_job" "useme_poll" {
     # Plus custom header for app-level auth
     oidc_token {
       service_account_email = google_service_account.app_sa.email
-      audience              = google_cloud_run_v2_service.portfolio_app.uri
+      audience              = google_cloud_run_v2_service.ks-portfolio.uri
     }
   }
 
   depends_on = [
     google_project_service.services,
-    google_cloud_run_v2_service.portfolio_app,
+    google_cloud_run_v2_service.ks-portfolio,
   ]
 }

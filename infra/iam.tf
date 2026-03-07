@@ -175,3 +175,8 @@ moved {
   from = google_secret_manager_secret.qdrant_url
   to   = google_secret_manager_secret.secrets["QDRANT_URL"]
 }
+
+moved {
+  from = google_cloud_run_v2_service.portfolio_app
+  to   = google_cloud_run_v2_service.ks-portfolio
+}
