@@ -52,3 +52,12 @@ resource "google_secret_manager_secret_iam_member" "accessor" {
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.app_sa.email}"
 }
+
+resource "random_password" "useme_poll_token" {
+  length  = 32
+  special = false
+}
+resource "google_secret_manager_secret_version" "useme_poll_token" {
+  secret      = google_secret_manager_secret.secrets["USEME_POLL_TOKEN"].id
+  secret_data = random_password.useme_poll_token.result
+}
