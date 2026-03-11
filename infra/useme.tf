@@ -1,4 +1,4 @@
-# --- Cloud Scheduler for Useme polling ---
+# Cloud Scheduler for Useme polling
 resource "google_cloud_scheduler_job" "useme_poll" {
   name        = "useme-poll"
   description = "Poll Useme offers via Gmail every 4 hours during business hours"
@@ -18,8 +18,6 @@ resource "google_cloud_scheduler_job" "useme_poll" {
       "Content-Type" = "application/json"
     }
 
-    # Poll token injected via OIDC (Cloud Scheduler -> Cloud Run auth)
-    # Plus custom header for app-level auth
     oidc_token {
       service_account_email = google_service_account.app_sa.email
       audience              = google_cloud_run_v2_service.ks-portfolio.uri

@@ -1,11 +1,10 @@
-# --- Secret Manager Configuration ---
 
 variable "secret_ids" {
-  type    = list(string)
+  type = list(string)
   default = [
     "GEMINI_API_KEY",
     "QDRANT_API_KEY",
-    "QDRANT_URL", # Added for consistency with infrastructure requirements
+    "QDRANT_URL",
     "ADMIN_SECRET",
     "SLACK_BOT_TOKEN",
     "SLACK_SIGNING_SECRET",

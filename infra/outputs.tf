@@ -1,4 +1,3 @@
-# outputs.tf
 
 output "registry_url" {
   description = "The URL of the Artifact Registry repository"

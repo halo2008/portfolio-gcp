@@ -1,4 +1,4 @@
-# --- Cloud Run Service ---
+# Cloud Run Service
 resource "google_cloud_run_v2_service" "ks-portfolio" {
   name                = var.app_name
   location            = var.region
@@ -166,7 +166,6 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
         }
       }
 
-      # Useme module secrets
       env {
         name = "GMAIL_CLIENT_ID"
         value_source {
@@ -245,7 +244,6 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
   }
 }
 
-# --- Public Access ---
 resource "google_cloud_run_service_iam_member" "public_access" {
   service  = google_cloud_run_v2_service.ks-portfolio.name
   location = google_cloud_run_v2_service.ks-portfolio.location
@@ -253,7 +251,6 @@ resource "google_cloud_run_service_iam_member" "public_access" {
   member   = "allUsers"
 }
 
-# --- Domain Mapping ---
 resource "google_cloud_run_domain_mapping" "default" {
   location = var.region
   name     = "ks-infra.dev"

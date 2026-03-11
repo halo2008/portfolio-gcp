@@ -1,4 +1,3 @@
-# --- Identity Platform ---
 resource "google_identity_platform_config" "default" {
   project = var.project_id
 
