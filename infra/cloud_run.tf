@@ -13,6 +13,10 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
   template {
     service_account = google_service_account.app_sa.email
 
+    annotations = {
+      "run.googleapis.com/cpu-throttling" = "true"
+    }
+
     scaling {
       min_instance_count = 0
       max_instance_count = 3
