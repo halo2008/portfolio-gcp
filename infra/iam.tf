@@ -48,6 +48,8 @@ resource "google_service_account_iam_member" "github_act_as_app_sa" {
 }
 
 # State Migrations
+
+# --- Migracja Kontenerów Sekretów ---
 moved {
   from = google_secret_manager_secret.gemini_key
   to   = google_secret_manager_secret.secrets["GEMINI_API_KEY"]
@@ -89,6 +91,7 @@ moved {
   to   = google_secret_manager_secret.secrets["SLACK_CHANNEL_ID"]
 }
 
+# --- Migracja Uprawnień IAM do Sekretów (Klucze: małe -> wielkie + zmiana nazwy zasobu) ---
 moved {
   from = google_secret_manager_secret_iam_member.app_sa_secret_access["gemini"]
   to   = google_secret_manager_secret_iam_member.accessor["GEMINI_API_KEY"]
@@ -134,6 +137,7 @@ moved {
   to   = google_secret_manager_secret_iam_member.accessor["SLACK_CHANNEL_ID"]
 }
 
+# --- Migracja Wersji (Zachowanie kluczy) ---
 moved {
   from = google_secret_manager_secret_version.loki_host_initial
   to   = google_secret_manager_secret_version.secret_versions["LOKI_HOST"]
@@ -147,6 +151,7 @@ moved {
   to   = google_secret_manager_secret_version.secret_versions["LOKI_PASSWORD"]
 }
 
+# --- Migracja Rol Projektowych (Ujednolicenie nazw) ---
 moved {
   from = google_project_iam_member.firestore_access
   to   = google_project_iam_member.app_firestore
