@@ -20,7 +20,8 @@ variable "secret_ids" {
     "GMAIL_REFRESH_TOKEN",
     "USEME_POLL_TOKEN",
     "USEME_USER_SKILLS",
-    "GRAFANA_REMOTE_WRITE_URL"
+    "GRAFANA_REMOTE_WRITE_URL",
+    "CLOUD_SCHEDULER_SECRET"
   ]
 }
 
@@ -59,4 +60,13 @@ resource "random_password" "useme_poll_token" {
 resource "google_secret_manager_secret_version" "useme_poll_token" {
   secret      = google_secret_manager_secret.secrets["USEME_POLL_TOKEN"].id
   secret_data = random_password.useme_poll_token.result
+}
+
+resource "random_password" "cloud_scheduler_secret" {
+  length  = 48
+  special = false
+}
+resource "google_secret_manager_secret_version" "cloud_scheduler_secret" {
+  secret      = google_secret_manager_secret.secrets["CLOUD_SCHEDULER_SECRET"].id
+  secret_data = random_password.cloud_scheduler_secret.result
 }

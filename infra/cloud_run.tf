@@ -230,6 +230,16 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
         }
       }
 
+      env {
+        name = "CLOUD_SCHEDULER_SECRET"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.secrets["CLOUD_SCHEDULER_SECRET"].secret_id
+            version = "latest"
+          }
+        }
+      }
+
       resources {
         limits = {
           cpu    = "1000m"
