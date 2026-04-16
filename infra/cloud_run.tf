@@ -30,7 +30,7 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
           path = "/health"
           port = 8080
         }
-        initial_delay_seconds = 70
+        initial_delay_seconds = 20
         period_seconds        = 10
         failure_threshold     = 3
       }
@@ -243,7 +243,7 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "1024Mi"
+          memory = "512Mi"
         }
       }
     }
