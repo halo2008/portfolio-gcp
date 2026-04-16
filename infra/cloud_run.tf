@@ -1,6 +1,6 @@
 # Cloud Run Service
 resource "google_cloud_run_v2_service" "ks-portfolio" {
-  name                = var.app_name
+  name                = "ks-site"
   location            = var.region
   ingress             = "INGRESS_TRAFFIC_ALL"
   deletion_protection = false
