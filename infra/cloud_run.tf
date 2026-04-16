@@ -2,7 +2,7 @@
 resource "google_cloud_run_v2_service" "ks-portfolio" {
   name                = var.app_name
   location            = var.region
-  ingress             = "INGRESS_TRAFFIC_INTERNAL_AND_CLOUD_LOAD_BALANCING"
+  ingress             = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
   deletion_protection = false
 
   depends_on = [
