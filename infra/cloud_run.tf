@@ -27,7 +27,7 @@ resource "google_cloud_run_v2_service" "ks-portfolio" {
 
       startup_probe {
         http_get {
-          path = "/health"
+          path = "/internal/status"
           port = 8080
         }
         initial_delay_seconds = 20
